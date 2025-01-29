@@ -8,3 +8,5 @@ func PrintBCData(pinataHash string, Key string, proof string) error {
 	fmt.Println(proof)
 	return nil
 }
+
+
