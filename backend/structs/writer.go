@@ -8,3 +8,19 @@ type Writer struct {
 	StealthAddress string             `bson:"stealth_address"` // One-time stealth address generated for the writer
 	CreatedAt      primitive.DateTime `bson:"created_at"`      // Timestamp of address creation
 }
+
+// PublicKeyRequest is the structure that holds the public key address from the request body
+type PublicKeyRequest struct {
+	Address string `json:"address"` // Public key of the writer
+}
+
+type Blog struct {
+	Content string
+	Author  string
+}
+
+type BlogUpload struct {
+	Author  string `json:"key"`
+	Content string `json:"content"`
+	Title   string `json:"title"`
+}

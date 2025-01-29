@@ -6,6 +6,7 @@ import (
 	"log"
 	"writex/structs"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -30,6 +31,31 @@ func InitMongoDB() error {
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
 		return fmt.Errorf("failed to ping MongoDB: %v", err)
+	}
+
+	// Get the list of databases
+	databases, err := client.ListDatabases(context.TODO(), bson.M{})
+	if err != nil {
+		return fmt.Errorf("failed to list databases: %v", err)
+	}
+
+	dbExists := false
+	// Iterate through the databases slice
+	for _, db := range databases.Databases {
+		if db.Name == "writeXDB" {
+			dbExists = true
+			break
+		}
+	}
+
+	// If the database doesn't exist, create it by inserting a document
+	if !dbExists {
+		// We can insert a dummy document into the database to ensure it is created
+		// Just insert into the "writers" collection (MongoDB will create the collection if it doesn't exist)
+		_, err := client.Database("writeXDB").Collection("writers").InsertOne(context.TODO(), bson.D{{"dummy", "data"}})
+		if err != nil {
+			return fmt.Errorf("failed to create database and collection: %v", err)
+		}
 	}
 
 	// Initialize the writerCollection
