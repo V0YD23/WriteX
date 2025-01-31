@@ -1,24 +1,26 @@
 package address
 
 import (
+	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
-	"math/rand"
-	"time"
 )
 
-func CreateOnAppAddress(writerPublicKey string) (string, error) {
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+// Secret key to be used for HMAC. This key should be kept secure and not hardcoded in production.
+var secretKey = []byte("your-secret-key")
 
-	//Generate a random byte slice (32 bytes long)
-	randomBytes := make([]byte, 32)
-	_, err := rng.Read(randomBytes)
+func CreateOnAppAddress(writerPublicKey string) (string, error) {
+	// Create HMAC hash of the writerPublicKey using SHA256
+	hmacHash := hmac.New(sha256.New, secretKey)
+	_, err := hmacHash.Write([]byte(writerPublicKey))
 	if err != nil {
-		panic(err)
+		return "", fmt.Errorf("failed to create HMAC hash: %v", err)
 	}
 
-	// Hash the random bytes to get a unique address-like string
-	hashedAddress := sha256.Sum256(randomBytes)
-	return fmt.Sprintf("0x%s", hashedAddress[:]), nil
+	// Get the resulting HMAC hash
+	hashedAddress := hmacHash.Sum(nil)
 
+	// Encode the hash as a hex string and return it
+	return fmt.Sprintf("0x%s", hex.EncodeToString(hashedAddress)), nil
 }

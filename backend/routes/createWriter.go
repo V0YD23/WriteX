@@ -32,5 +32,11 @@ func CreateWriterHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Send a success response with writer details
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newWriter)
+	// Set the response header to indicate JSON content type
+	w.Header().Set("Content-Type", "application/json")
+
+	// Encode the map with StealthAddress into JSON and send the response
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"stealthAddress": newWriter.StealthAddress,
+	})
 }

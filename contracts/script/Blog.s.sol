@@ -8,7 +8,6 @@ import "../src/Blog.sol";
 contract DeployBlogStorage is Script {
     function run() public {
         uint256 private_key = vm.envUint("PRIVATE_KEY");
-        string memory rpcUrl = vm.envString("RPC_URL");
 
         vm.startBroadcast(private_key);
         // Deploy the BlogStorage contract
@@ -17,6 +16,5 @@ contract DeployBlogStorage is Script {
         vm.stopBroadcast();
         // Log the contract address after deployment
         console.log("BlogStorage deployed at:", address(blogStorage)); 
-
     }
 }

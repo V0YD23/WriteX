@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"writex/models"
 	"writex/routes"
+
+	"github.com/rs/cors" // Import the cors package
 )
 
 func main() {
@@ -15,14 +17,18 @@ func main() {
 		log.Fatalf("Failed to initialize MongoDB: %v", err)
 	}
 	fmt.Println("MongoDB connected successfully!")
+
 	// Define the HTTP routes
 	http.HandleFunc("/create-writer", routes.CreateWriterHandler) // Route to create a writer
 	http.HandleFunc("/blog-upload", routes.BlogUpload)
-	http.HandleFunc("/verify-blog", routes.VerifyBlog) // this is just to verify the blog using proof now
-	// on successful return of this would make the frontend call transfer of tokens
-	// Start the server
+	http.HandleFunc("/verify-blog", routes.VerifyBlog) // This is just to verify the blog using proof now
+
+	// Enable CORS with default settings
+	corsHandler := cors.Default().Handler(http.DefaultServeMux)
+
+	// Start the server with the CORS middleware applied
 	fmt.Println("Server starting on port 8000...")
-	if err := http.ListenAndServe(":8000", nil); err != nil {
+	if err := http.ListenAndServe(":8000", corsHandler); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
