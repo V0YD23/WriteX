@@ -63,7 +63,7 @@ contract BlogStorage {
     }
 
     // Fetch all blogs by returning only titles and IPFS hashes (avoiding returning sensitive data like `proof`)
-    function getBlogs() public returns (string[] memory titles, string[] memory ipfsHashes) {
+    function getBlogs() public view returns (string[] memory titles, string[] memory ipfsHashes) {
         titles = new string[](blogCount);
         ipfsHashes = new string[](blogCount);
 
@@ -72,7 +72,7 @@ contract BlogStorage {
             ipfsHashes[i - 1] = blogs[i].ipfsHash;
         }
 
-        emit BlogListGot(blogCount);  // Emit event with the number of blogs
+        // emit BlogListGot(blogCount);  // Emit event with the number of blogs
         return (titles, ipfsHashes);
     }
 
