@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"writex/structs"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -17,8 +19,15 @@ var writerCollection *mongo.Collection
 
 // InitMongoDB initializes the MongoDB connection and sets the writerCollection
 func InitMongoDB() error {
+
+	er := godotenv.Load()
+	if er != nil {
+		fmt.Println("Error loading .env file")
+		return er
+	}
 	// MongoDB connection URI
-	clientOptions := options.Client().ApplyURI("mongodb+srv://user:mongo12345@cluster0.phiye.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+	mongo_uri := os.Getenv("MONGO_URI")
+	clientOptions := options.Client().ApplyURI(mongo_uri)
 
 	// Establish MongoDB connection
 	var err error
@@ -63,6 +72,14 @@ func InitMongoDB() error {
 
 	return nil
 }
+
+// func FetchBlogs() error {
+// 	if writerCollection == nil {
+// 		return fmt.Errorf("writerCollection is not initialized")
+// 	}
+
+// 	_,err := writerCollection.
+// }
 
 // SaveWriter saves a new writer's data to the MongoDB collection
 func SaveWriter(writer *structs.Writer) error {
