@@ -31,6 +31,14 @@ func NewWriter(publicKey string) (*structs.Writer, error) {
 	return writer, nil
 }
 
+func IsWriterPresent(publicKey string) (string, bool) {
+	result, err := models.IsPresent(publicKey)
+	if err != nil {
+		return "", false
+	}
+	return result, true
+}
+
 // SaveWriter saves the current writer instance to the MongoDB collection
 func SaveWriter(w *structs.Writer) error {
 	// Call the SaveWriter function from the models package to insert the writer into the database
