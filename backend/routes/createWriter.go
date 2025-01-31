@@ -23,6 +23,22 @@ func CreateWriterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	addr, boolean := writer.IsWriterPresent(requestBody.Address)
+	fmt.Println(boolean)
+
+	if boolean {
+		// Send a success response with writer details
+		w.WriteHeader(http.StatusOK)
+		// Set the response header to indicate JSON content type
+		w.Header().Set("Content-Type", "application/json")
+
+		// Encode the map with StealthAddress into JSON and send the response
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"stealthAddress": addr,
+			"present":        "already",
+		})
+		return
+	}
 	// Create a new writer using the provided address
 	newWriter, err := writer.NewWriter(writerAddress)
 	if err != nil {
@@ -38,5 +54,6 @@ func CreateWriterHandler(w http.ResponseWriter, r *http.Request) {
 	// Encode the map with StealthAddress into JSON and send the response
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"stealthAddress": newWriter.StealthAddress,
+		"present":        "not_already",
 	})
 }

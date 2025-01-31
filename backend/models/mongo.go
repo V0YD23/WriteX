@@ -95,3 +95,33 @@ func SaveWriter(writer *structs.Writer) error {
 	log.Println("Writer saved successfully!")
 	return nil
 }
+
+func IsPresent(publicKey string) (string, error) {
+	if writerCollection == nil {
+		return "", fmt.Errorf("writerCollection is not initialized")
+	}
+
+	filter := bson.M{"public_key": publicKey}
+	var result bson.M
+
+	// Perform the query
+	err := writerCollection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return "", fmt.Errorf("public key not found")
+		}
+		return "", fmt.Errorf("error finding public key: %v", err)
+	}
+
+	fmt.Println(result)
+
+	// Extract "stealthAddress" field
+	stealthAddr, exists := result["stealth_address"].(string)
+	if !exists {
+		return "", fmt.Errorf("stealthAddress field not found or not a string")
+	}
+
+	fmt.Println(stealthAddr)
+
+	return stealthAddr, nil
+}
