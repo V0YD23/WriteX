@@ -18,6 +18,7 @@ func main() {
 	// Define the HTTP routes
 	http.HandleFunc("/create-writer", routes.CreateWriterHandler) // Route to create a writer
 	http.HandleFunc("/blog-upload", routes.BlogUpload)
+	http.HandleFunc("/verify-blog", routes.VerifyBlog) // this is just to verify the
 	// Start the server
 	fmt.Println("Server starting on port 8000...")
 	if err := http.ListenAndServe(":8000", nil); err != nil {

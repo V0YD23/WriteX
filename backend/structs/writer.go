@@ -24,3 +24,9 @@ type BlogUpload struct {
 	Content string `json:"content"`
 	Title   string `json:"title"`
 }
+
+type ReadBlog struct {
+	BlogIpfsHash string `json:"hash"`
+	Proof        string `json:"proof"`
+	Author       string `json:"key"`
+}
