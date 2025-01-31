@@ -10,69 +10,70 @@ contract BlogStorage {
         string key;
     }
 
+    // Store blogs by id and the address associated with each key
     mapping(uint256 => Blog) public blogs;
-    mapping(string => address) public addresses;
-    uint256 blogCount;
+    mapping(string => address) public addresses; // Map a key to the real address
+    uint256 public blogCount;
 
-
-    event NewWriterAdded(string key,address realKey);
-    event BlogStored(string title,string ipfsHash,string key);
-    event BlogListGot();
+    // Events for successful actions
+    event NewWriterAdded(string indexed key, address indexed realKey);
+    event BlogStored(string indexed title, string indexed ipfsHash, string key);
+    event BlogListGot(uint256 blogCount);  // Notify the number of blogs in the system
     event FundsSent(address indexed to, uint256 amount);
-    event TipsSent(address indexed to ,uint256 amount);
+    event TipsSent(address indexed to, uint256 amount);
 
-
+    // Register a new writer (Only allows a unique key per writer)
     function newWriter(string memory key) public {
-        addresses[key]=msg.sender;
-        emit NewWriterAdded(key,msg.sender);
+        // Ensure the key isn't already taken
+        require(addresses[key] == address(0), "Writer already registered.");
+        
+        addresses[key] = msg.sender;
+        emit NewWriterAdded(key, msg.sender);
     }
 
+    // Allow tipping a writer for their content
     function tipWriter(string memory key) public payable {
-
         address realKey = addresses[key];
-        // Ensure the address is valid (non-zero)
         require(realKey != address(0), "Invalid address for the given key");
 
-        // Transfer the received funds to the realKey
-        (bool success, ) = realKey.call{value: msg.value}("This is Tip for you");
+        // Transfer the received funds to the writer's address
+        (bool success, ) = realKey.call{value: msg.value}("");
         require(success, "Transfer failed");
 
-        emit TipsSent(realKey,msg.value);
+        emit TipsSent(realKey, msg.value);
     }
 
+    // Allow paying for blog access and send funds to the writer
     function realBlog(string memory key) public payable {
-
         address realKey = addresses[key];
-        // Ensure the address is valid (non-zero)
         require(realKey != address(0), "Invalid address for the given key");
 
-        // Transfer the received funds to the realKey
-        (bool success, ) = realKey.call{value: msg.value}("This is for your Blog Access");
+        // Transfer the received funds to the writer's address
+        (bool success, ) = realKey.call{value: msg.value}("");
         require(success, "Transfer failed");
 
-        emit FundsSent(realKey,msg.value);
+        emit FundsSent(realKey, msg.value);
     }
 
-
-    function postBlog(string memory title,string memory ipfsHash,string memory key,string memory proof) public {
+    // Post a blog with the given details
+    function postBlog(string memory title, string memory ipfsHash, string memory key, string memory proof) public {
         blogCount++;
-        blogs[blogCount] = Blog(title,ipfsHash,key,proof);
-        emit BlogStored(title,ipfsHash,key);
+        blogs[blogCount] = Blog(title, ipfsHash, key, proof);
+        emit BlogStored(title, ipfsHash, key);
     }
 
-    function getBlogs() public  returns (string[] memory, string[] memory, string[] memory) {
-        string[] memory titles = new string[](blogCount);
-        string[] memory ipfsHashes = new string[](blogCount);
-        string[] memory keys = new string[](blogCount);
+    // Fetch all blogs by returning only titles and IPFS hashes (avoiding returning sensitive data like `proof`)
+    function getBlogs() public returns (string[] memory titles, string[] memory ipfsHashes) {
+        titles = new string[](blogCount);
+        ipfsHashes = new string[](blogCount);
 
         for (uint256 i = 1; i <= blogCount; i++) {
             titles[i - 1] = blogs[i].title;
             ipfsHashes[i - 1] = blogs[i].ipfsHash;
-            keys[i - 1] = blogs[i].key;
         }
-        emit BlogListGot();
 
-        return (titles, ipfsHashes, keys);
+        emit BlogListGot(blogCount);  // Emit event with the number of blogs
+        return (titles, ipfsHashes);
     }
 
 }
